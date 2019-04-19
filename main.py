@@ -3,6 +3,8 @@ from PIL import Image
 from io import BytesIO, StringIO
 import requests
 import math
+# dunno if re should be used
+import re
 
 # ' to " later
 # https://stackoverflow.com/questions/38421160/combine-multiple-different-images-from-a-directory-into-a-canvas-sized-3x6
@@ -28,9 +30,9 @@ kay, so only 8 images - maybe should be hardcoded for 'best' positions?
 '''
 
 
-def create_img(img_loc):
+def create_img(img_loc, size):
+
     # create empty image
-    size = 2048, 2048
     fill_color = 'white'
     mozaic = Image.new('RGB', size, fill_color)
     
@@ -90,14 +92,23 @@ def serve_pil_image(pil_img):
 @app.route('/mozaika', methods=['GET'])
 def mosaic():
     random = request.args.get('losowo')
-    resolution = request.args.get('rozdzielczosc')
+    size = request.args.get('rozdzielczosc')
     images = request.args.get('zdjecia').split(sep=',')
     
     #### RANDOMIZE LIST ORDER IF RANDOM
     
+    # size processing
+    # dunno, really
+    if size and re.match(r"[1-9][0-9]*x[1-9][0-9]*", size):
+        size = size.split(sep='x')
+        size = [int(i) for i in size]
+    else:
+        size = (2048, 2048)
+    
     print(images)
     print(len(images))
-    img = create_img(images)
+    
+    img = create_img(images, size)
     return serve_pil_image(img)
     
 
