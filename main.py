@@ -1,6 +1,7 @@
 from flask import Flask, render_template, abort, request, jsonify, send_file
 from PIL import Image
 from io import BytesIO, StringIO
+from random import shuffle
 import requests
 import math
 # dunno if re should be used
@@ -12,6 +13,7 @@ import re
 app = Flask(__name__)
 
 # add support for png files! eh, seems to work
+# some resolutions don't work
 
 '''
 kay, so only 8 images - maybe should be hardcoded for 'best' positions?
@@ -86,11 +88,13 @@ def create_img(img_loc, size):
     print("vertical_change " + str(vertical_change))
     
     current = 0
+    print("image # is" + str(image_number))
     for i in range(0, size[0], horizontal_change):
         for j in range(0, size[1], vertical_change):
-            # check if out of bounds - shouldn't be needed - remove
+            # check if out of bounds - shouldn't be needed - remove - tho, hmm; floats
+            # yea, floats are fucked - tries to show at 0x3999 for 1080x4000
             if j + vertical_change > size[1]:
-                pass
+                break
             try:
                 filepath = img_loc.pop(0)
             except IndexError:
@@ -99,15 +103,16 @@ def create_img(img_loc, size):
             response = requests.get(filepath)
             img = Image.open(BytesIO(response.content))
             # hmmmmmmmmmmmmmmmmmmmm
-            if odd_image and current==image_number and horizontal_change > vertical_change:
+            if odd_image and current==image_number and horizontal_change >= vertical_change:
                 print('lol, here')
                 img = img.resize((horizontal_change, vertical_change*2), Image.ANTIALIAS)
-            elif odd_image and current==(image_number//2 + 1):
+            elif odd_image and current==(image_number//2 + 1) and horizontal_change < vertical_change:
                 print('lol, there')
                 img = img.resize((horizontal_change*2, vertical_change), Image.ANTIALIAS)
                 odd_image = 0
             else:
                 img = img.resize((horizontal_change, vertical_change), Image.ANTIALIAS)
+            print("current " + str(current) + " at " + str(i) + "x" + str(j))
             mozaic.paste(img, (i,j))
     
     return mozaic
@@ -147,6 +152,10 @@ def mosaic():
     else:
         size = (2048, 2048)
     
+    # randomize
+    if random and random==1:
+        shuffle(images)
+        
     print(images)
     print(len(images))
     
