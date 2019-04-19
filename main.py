@@ -69,11 +69,13 @@ def create_img(img_loc, size):
     horizontal_change = size[0]//rows
     vertical_change = size[1]//columns
     
-    
+    if odd_image:
+        horizontal_change = size[0]//(rows+1)
     
     print("horizontal_change " + str(horizontal_change))
     print("vertical_change " + str(vertical_change))
     
+    current = 0
     for i in range(0, size[0], horizontal_change):
         for j in range(0, size[1], vertical_change):
             # check if out of bounds - shouldn't be needed - remove
@@ -83,8 +85,11 @@ def create_img(img_loc, size):
                 filepath = img_loc.pop(0)
             except IndexError:
                 break
+            current += 1 # change that into something nicer
             response = requests.get(filepath)
             img = Image.open(BytesIO(response.content))
+            if odd_image and current==image_number:
+                vertical_change *= 2
             img = img.resize((horizontal_change, vertical_change), Image.ANTIALIAS)
             mozaic.paste(img, (i,j))
     
