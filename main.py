@@ -36,6 +36,8 @@ kay, so only 8 images - maybe should be hardcoded for 'best' positions?
     
 so odd is //2 or -1
 if? based on switch?
+
+still problem with 7, when same x same
 '''
 
 
@@ -67,6 +69,8 @@ def create_img(img_loc, size):
         columns =  1
     
     # switch size
+    
+    # not sure if needed
     if size[1] > size[0]:
         print(rows, columns)
         rows, columns = columns, rows
@@ -85,22 +89,30 @@ def create_img(img_loc, size):
     horizontal_change = size[0]//rows
     vertical_change = size[1]//columns
     
+    
     switch = 0
     if odd_image:
         if horizontal_change >= vertical_change:
             horizontal_change = size[0]//(rows+1)
+            rows += 1
             switch = 1
         else:
             vertical_change = size[1]//(columns+1)
-            switch = 2
+            columns += 1
+    
     
     print("horizontal_change " + str(horizontal_change))
     print("vertical_change " + str(vertical_change))
-    print(switch)
+    #print(switch)
     current = 0
+    current_row = 0
+    current_column = 0
     print("image # is" + str(image_number))
     for i in range(0, size[0], horizontal_change):
+        current_row = 0
+        current_column += 1
         for j in range(0, size[1], vertical_change):
+            current_row += 1
             # check if out of bounds - shouldn't be needed - remove - tho, hmm; floats
             # yea, floats are fucked - tries to show at 0x3999 for 1080x4000
             if j + vertical_change > size[1]:
@@ -113,19 +125,24 @@ def create_img(img_loc, size):
             response = requests.get(filepath)
             img = Image.open(BytesIO(response.content))
             # hmmmmmmmmmmmmmmmmmmmm / looks better than in 'docs' - with switch
-            if odd_image and current==image_number and horizontal_change >= vertical_change:
+            print("row" + str(current_row) + " " + str(rows))
+            print("column" + str(current_column) + " " + str(columns))
+            if odd_image and current==image_number and horizontal_change > vertical_change:
                 print('lol, here')
                 img = img.resize((horizontal_change, vertical_change*2), Image.ANTIALIAS)
             # ceiling division - upside-down floor division - hmmm
-            # gotta fix - needs sth else - not sure if this works 100% !!!!!
-            elif (odd_image and horizontal_change < vertical_change and
+            # gotta fix - needs sth else - not sure if this works 100% !!!!! and current+rows>image_number
+            # something is still fucked up - only when same x same, so <= should be < somewhere
+            #elif horizontal_change <= vertical_change and current_column == rows and current+columns>image_number:
+            #elif horizontal_change <= vertical_change and current_column == columns-1 and current+rows>image_number:
+            elif horizontal_change <= vertical_change and current_column == rows-1 and current+columns>image_number:
                  # case #1 - 2 rows
-                 (switch == 1 and current==image_number-1) or
+                 #(switch == 1 and current==image_number-1) or
                  # case #2 - 3 rows and 4 rows
-                 (switch == 2 and current==image_number//2 + 1)):
+                 #(switch == 2 and current==image_number//2 + 1)):
                 print('lol, there')
                 img = img.resize((horizontal_change*2, vertical_change), Image.ANTIALIAS)
-                odd_image = 0
+                #odd_image = 0
             else:
                 img = img.resize((horizontal_change, vertical_change), Image.ANTIALIAS)
             print("current " + str(current) + " at " + str(i) + "x" + str(j))
