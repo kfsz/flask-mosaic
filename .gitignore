@@ -1,0 +1,14 @@
+# Python
+*.log
+*.pot
+*.pyc
+*.pyo
+*.coverage
+__pycache__/
+
+# VSCode
+.vscode
+
+# Vim
+*.swp
+*.swo
