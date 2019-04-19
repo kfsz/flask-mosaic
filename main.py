@@ -59,7 +59,7 @@ def create_img(img_loc, size):
     # right, so calculations
     # change rows and columns naming
     odd_image = False
-    if image_number > 3:
+    if image_number >= 3:
         rows = image_number//2
         columns =  2
         if image_number%2 == 1:
@@ -92,13 +92,14 @@ def create_img(img_loc, size):
     
     switch = 0
     if odd_image:
-        if horizontal_change >= vertical_change:
+        if horizontal_change > vertical_change:
             horizontal_change = size[0]//(rows+1)
             rows += 1
             switch = 1
         else:
             vertical_change = size[1]//(columns+1)
             columns += 1
+            switch = 2
     
     
     print("horizontal_change " + str(horizontal_change))
@@ -135,7 +136,11 @@ def create_img(img_loc, size):
             # something is still fucked up - only when same x same, so <= should be < somewhere
             #elif horizontal_change <= vertical_change and current_column == rows and current+columns>image_number:
             #elif horizontal_change <= vertical_change and current_column == columns-1 and current+rows>image_number:
-            elif horizontal_change <= vertical_change and current_column == rows-1 and current+columns>image_number:
+            elif (current_column == rows-1 and current+columns>image_number and
+                 (horizontal_change <= vertical_change or 
+                 # special case for when there is 7 pic mosaic
+                 # with strenched last image and empty space at the bottom
+                 current+columns>image_number+1)):
                  # case #1 - 2 rows
                  #(switch == 1 and current==image_number-1) or
                  # case #2 - 3 rows and 4 rows
