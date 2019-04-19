@@ -8,13 +8,12 @@ import re
 app = Flask(__name__)
 
 
-def create_mosaic(img_loc, size):
+def create_mosaic(image_locations, size):
     """Create mosaic using images from given urls and size."""
     # create empty image
-    fill_color = "black"
-    mozaic = Image.new("RGB", size, fill_color)
+    mozaic = Image.new("RGB", size, "black")
 
-    image_number = len(img_loc)
+    image_number = len(image_locations)
     odd_image = False
 
     # basic mosaic layout creation
@@ -60,7 +59,7 @@ def create_mosaic(img_loc, size):
 
             # get next url
             try:
-                file_url = img_loc.pop(0)
+                file_url = image_locations.pop(0)
             except IndexError:
                 break
 
@@ -109,7 +108,7 @@ def mosaic():
     # check if number of supplied images is correct
     if images:
         images = images.split(sep=",")
-        if images is False or len(images) > 8:
+        if len(images) > 8:
             return abort(400)
     else:
         return abort(400)
