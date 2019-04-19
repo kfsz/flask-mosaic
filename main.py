@@ -11,6 +11,7 @@ import re
 # hmmmmmmmmmmmmmmmmmmmm
 app = Flask(__name__)
 
+# add support for png files! eh, seems to work
 
 '''
 kay, so only 8 images - maybe should be hardcoded for 'best' positions?
@@ -44,13 +45,32 @@ def create_img(img_loc, size):
     #horizontal_change = 1000
     #vertical_change = 1000
     
-    # total size is fucked up, as it assumes horizontal == vertical - FIX
+    # right, so calculations
+    # change rows and columns naming
+    if image_number > 3:
+        rows = image_number//2
+        columns =  2
+        if image_number%2 == 1:
+            odd_image = True
+    else:
+        rows = image_number
+        columns =  1
+    
+    print(str(rows) + " xxx " + str(columns))
+    # total size is fucked up, as it assumes horizontal == vertical - FIX - to be removed
     total_size = size[0] * size[1]
     total_size = total_size/image_number
     total_size = int(math.sqrt(total_size))
-    
     horizontal_change = total_size
     vertical_change = total_size
+    
+    # second part of calculations 
+    # check which one is bigger
+    horizontal_change = size[0]//rows
+    vertical_change = size[1]//columns
+    
+    
+    
     print("horizontal_change " + str(horizontal_change))
     print("vertical_change " + str(vertical_change))
     
