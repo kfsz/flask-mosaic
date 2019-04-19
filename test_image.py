@@ -2,7 +2,7 @@ import pytest
 
 from main import *
 
-class TestImage(object):
+class TestImage():
 
     test_image_url = "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"
     test_default_size = (2048, 2048)
@@ -16,6 +16,9 @@ class TestImage(object):
         
     def test_size(self):    
         assert self.image.size == self.test_default_size
+        
+    def test_mode(self):    
+        assert self.image.mode == "RGB"
         
     def test_size_change(self):    
         assert self.image_diffrent_size.size == (1000, 9999)       
