@@ -99,7 +99,16 @@ def mosaic():
     # get parameters
     random = request.args.get('losowo')
     size = request.args.get('rozdzielczosc')
-    images = request.args.get('zdjecia').split(sep=',')
+    images = request.args.get('zdjecia')
+    
+    # check if number of supplied images is correct
+    print(images)
+    if images:
+        images = images.split(sep=',')
+        if images is False or len(images) > 8:
+            return abort(400)
+    else:
+        return abort(400)
   
     # size validation and processing
     if size and re.match(r"[1-9][0-9]*x[1-9][0-9]*", size):
