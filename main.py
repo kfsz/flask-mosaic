@@ -15,6 +15,8 @@ app = Flask(__name__)
 # add support for png files! eh, seems to work
 # some resolutions don't work
 
+# dunno if it wouldnt be better to simply randomize and duplicate image if odd number exists
+
 '''
 kay, so only 8 images - maybe should be hardcoded for 'best' positions?
 1 - x
@@ -30,13 +32,18 @@ kay, so only 8 images - maybe should be hardcoded for 'best' positions?
     Ixxx
 8 - xxxx
     xxxx
+    
+    
+so odd is //2 or -1
+if? based on switch?
 '''
+
 
 
 def create_img(img_loc, size):
 
     # create empty image
-    fill_color = 'white'
+    fill_color = 'black'
     mozaic = Image.new('RGB', size, fill_color)
     
     image_number = len(img_loc)
@@ -78,15 +85,18 @@ def create_img(img_loc, size):
     horizontal_change = size[0]//rows
     vertical_change = size[1]//columns
     
+    switch = 0
     if odd_image:
-        if horizontal_change > vertical_change:
+        if horizontal_change >= vertical_change:
             horizontal_change = size[0]//(rows+1)
+            switch = 1
         else:
-            vertical_change = size[1]//(rows+1)
+            vertical_change = size[1]//(columns+1)
+            switch = 2
     
     print("horizontal_change " + str(horizontal_change))
     print("vertical_change " + str(vertical_change))
-    
+    print(switch)
     current = 0
     print("image # is" + str(image_number))
     for i in range(0, size[0], horizontal_change):
@@ -102,11 +112,17 @@ def create_img(img_loc, size):
             current += 1 # change that into something nicer
             response = requests.get(filepath)
             img = Image.open(BytesIO(response.content))
-            # hmmmmmmmmmmmmmmmmmmmm
+            # hmmmmmmmmmmmmmmmmmmmm / looks better than in 'docs' - with switch
             if odd_image and current==image_number and horizontal_change >= vertical_change:
                 print('lol, here')
                 img = img.resize((horizontal_change, vertical_change*2), Image.ANTIALIAS)
-            elif odd_image and current==(image_number//2 + 1) and horizontal_change < vertical_change:
+            # ceiling division - upside-down floor division - hmmm
+            # gotta fix - needs sth else - not sure if this works 100% !!!!!
+            elif (odd_image and horizontal_change < vertical_change and
+                 # case #1 - 2 rows
+                 (switch == 1 and current==image_number-1) or
+                 # case #2 - 3 rows and 4 rows
+                 (switch == 2 and current==image_number//2 + 1)):
                 print('lol, there')
                 img = img.resize((horizontal_change*2, vertical_change), Image.ANTIALIAS)
                 odd_image = 0
@@ -153,7 +169,8 @@ def mosaic():
         size = (2048, 2048)
     
     # randomize
-    if random and random==1:
+    # can potentially crash - prob better to str instead
+    if random and int(random)==1:
         shuffle(images)
         
     print(images)
