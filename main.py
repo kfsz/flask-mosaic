@@ -47,6 +47,7 @@ def create_img(img_loc, size):
     
     # right, so calculations
     # change rows and columns naming
+    odd_image = False
     if image_number > 3:
         rows = image_number//2
         columns =  2
@@ -55,6 +56,12 @@ def create_img(img_loc, size):
     else:
         rows = image_number
         columns =  1
+    
+    # switch size
+    if size[1] > size[0]:
+        print(rows, columns)
+        rows, columns = columns, rows
+        print(rows, columns)
     
     print(str(rows) + " xxx " + str(columns))
     # total size is fucked up, as it assumes horizontal == vertical - FIX - to be removed
@@ -70,7 +77,10 @@ def create_img(img_loc, size):
     vertical_change = size[1]//columns
     
     if odd_image:
-        horizontal_change = size[0]//(rows+1)
+        if horizontal_change > vertical_change:
+            horizontal_change = size[0]//(rows+1)
+        else:
+            vertical_change = size[1]//(rows+1)
     
     print("horizontal_change " + str(horizontal_change))
     print("vertical_change " + str(vertical_change))
@@ -88,9 +98,16 @@ def create_img(img_loc, size):
             current += 1 # change that into something nicer
             response = requests.get(filepath)
             img = Image.open(BytesIO(response.content))
-            if odd_image and current==image_number:
-                vertical_change *= 2
-            img = img.resize((horizontal_change, vertical_change), Image.ANTIALIAS)
+            # hmmmmmmmmmmmmmmmmmmmm
+            if odd_image and current==image_number and horizontal_change > vertical_change:
+                print('lol, here')
+                img = img.resize((horizontal_change, vertical_change*2), Image.ANTIALIAS)
+            elif odd_image and current==(image_number//2 + 1):
+                print('lol, there')
+                img = img.resize((horizontal_change*2, vertical_change), Image.ANTIALIAS)
+                odd_image = 0
+            else:
+                img = img.resize((horizontal_change, vertical_change), Image.ANTIALIAS)
             mozaic.paste(img, (i,j))
     
     return mozaic
